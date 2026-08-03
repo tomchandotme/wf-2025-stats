@@ -6,10 +6,10 @@ import {
 } from "../utils/dataLoader";
 import { PopularityRow } from "./PopularityRow";
 import { MRPopulationChart } from "./MRPopulationChart";
-import { MR_RANGES } from "../constants";
+import { MR_RANGES, AVAILABLE_YEARS } from "../constants";
 import type { MRRange, RootData } from "../types";
 
-const CUSTOM_CATAGORY_ORDER = ["Warframe", "Primary", "Secondary", "Melee"];
+const CUSTOM_CATEGORY_ORDER = ["Warframe", "Primary", "Secondary", "Melee"];
 
 /**
  * The main dashboard component for displaying Warframe popularity statistics.
@@ -30,13 +30,13 @@ export const PopularityDashboard: React.FC = () => {
     null,
   );
 
-  const years = [2022, 2023, 2024, 2025];
+  const years = AVAILABLE_YEARS;
 
   const categories = useMemo(() => {
     if (!currentYearData) return ["Warframe"];
     return getCategories(currentYearData).sort((a, b) => {
       return (
-        CUSTOM_CATAGORY_ORDER.indexOf(a) - CUSTOM_CATAGORY_ORDER.indexOf(b)
+        CUSTOM_CATEGORY_ORDER.indexOf(a) - CUSTOM_CATEGORY_ORDER.indexOf(b)
       );
     });
   }, [currentYearData]);
@@ -48,7 +48,7 @@ export const PopularityDashboard: React.FC = () => {
       const current = await loadDataForYear(year);
       setCurrentYearData(current);
 
-      if (year > 2022) {
+      if (year > AVAILABLE_YEARS[0]) {
         const previous = await loadDataForYear(year - 1);
         setPreviousYearData(previous);
       } else {

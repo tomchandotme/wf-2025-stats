@@ -9,6 +9,44 @@ import urls from "../../data/urls.json";
 import { MR_WEIGHTS } from "../constants/mrWeights";
 
 const dataCache: Record<number, RootData> = {};
+const urlLookup = urls as Record<string, string>;
+const urlLookupLower = new Map(
+  Object.entries(urlLookup).map(([name, file]) => [name.toLowerCase(), file]),
+);
+
+const MAX_WEIGHTED_MR = Math.max(...Object.keys(MR_WEIGHTS).map(Number));
+
+const resolveImageUrl = (name: string): string | undefined => {
+  const file = urlLookup[name] ?? urlLookupLower.get(name.toLowerCase());
+  return file ? `https://cdn.warframestat.us/img/${file}` : undefined;
+};
+
+/**
+ * Validates the minimal shape expected from yearly usage JSON.
+ */
+export const assertRootData = (data: unknown, year: number): RootData => {
+  if (!data || typeof data !== "object") {
+    throw new Error(`Invalid data for ${year}: expected an object`);
+  }
+
+  const root = data as { ALL?: unknown };
+  if (!root.ALL || typeof root.ALL !== "object") {
+    throw new Error(`Invalid data for ${year}: missing ALL segment`);
+  }
+
+  const categories = Object.values(root.ALL as Record<string, unknown>);
+  if (categories.length === 0) {
+    throw new Error(`Invalid data for ${year}: ALL has no categories`);
+  }
+
+  for (const category of categories) {
+    if (!category || typeof category !== "object") {
+      throw new Error(`Invalid data for ${year}: category is not an object`);
+    }
+  }
+
+  return data as RootData;
+};
 
 /**
  * Loads Warframe usage data for a specific year.
@@ -23,14 +61,12 @@ export const loadDataForYear = async (year: number): Promise<RootData> => {
   }
 
   try {
-    // In a real Vite app, we might use import.meta.glob or fetch
-    // But since this is a local environment, we can assume the files are in the public/root
     const response = await fetch(`/data/WarframeUsageData${year}.json`);
     if (!response.ok) {
       throw new Error(`Failed to load data for ${year}`);
     }
-    const data = await response.json();
-    dataCache[year] = data as RootData;
+    const data = assertRootData(await response.json(), year);
+    dataCache[year] = data;
     return dataCache[year];
   } catch (error) {
     console.error(`Error loading data for year ${year}:`, error);
@@ -63,10 +99,15 @@ export const aggregateMRUsage = (usage: ItemUsage): MRRangeUsage => {
   Object.entries(usage).forEach(([mr, value]) => {
     if (mr === "ALL") return;
 
-    const mrNum = parseInt(mr, 10);
-    if (isNaN(mrNum)) return;
+    const parsed = parseInt(mr, 10);
+    if (isNaN(parsed) || parsed < 0) return;
 
-    const weight = MR_WEIGHTS[mrNum] || 0;
+    // 2024 source data includes anomalous MR "40" on a few items.
+    // Clamp above the solved weight range so those rows still contribute to 21+.
+    const mrNum = Math.min(parsed, MAX_WEIGHTED_MR);
+    const weight = MR_WEIGHTS[mrNum];
+    if (!weight) return;
+
     const weightedUsage = value * weight;
 
     if (mrNum <= 10) {
@@ -188,9 +229,7 @@ export const getTopItemsWithTrends = (
   if (!previousData) {
     return currentRanked.slice(0, limit).map((item) => ({
       ...item,
-      imageUrl: (urls as Record<string, string>)[item.name]
-        ? `https://cdn.warframestat.us/img/${(urls as Record<string, string>)[item.name]}`
-        : undefined,
+      imageUrl: resolveImageUrl(item.name),
     }));
   }
 
@@ -202,8 +241,6 @@ export const getTopItemsWithTrends = (
   return currentRanked.slice(0, limit).map((item) => ({
     ...item,
     previousRank: previousRankMap.get(item.name),
-    imageUrl: (urls as Record<string, string>)[item.name]
-      ? `https://cdn.warframestat.us/img/${(urls as Record<string, string>)[item.name]}`
-      : undefined,
+    imageUrl: resolveImageUrl(item.name),
   }));
 };

@@ -1,5 +1,8 @@
 import { type MRRange } from "./types";
 
+export const AVAILABLE_YEARS = [2022, 2023, 2024, 2025] as const;
+export type AvailableYear = (typeof AVAILABLE_YEARS)[number];
+
 export const MR_RANGES: MRRange[] = ["ALL", "0-10", "11-20", "21+"];
 
 // Colors for MR ranges to make them distinct

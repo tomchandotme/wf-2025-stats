@@ -26,6 +26,31 @@ items.forEach((v) => {
   }
 });
 
+// Manual aliases for names that differ between DE usage reports and WFCD items.
+const IMAGE_ALIASES: Record<string, string> = {
+  "MK1-Bo": "Bo",
+  "MK1-Furax": "Furax",
+  "MK1-Braton": "Braton",
+  "MK1-Paris": "Paris",
+  "MK1-Strun": "Strun",
+  "MK1-Furis": "Furis",
+  "MK1-Kunai": "Kunai",
+  "Dark Split-Sword (Dual Swords)": "Dark Split-Sword",
+  "Dark Split-Sword (Heavy Blade)": "Dark Split-Sword",
+  "Vinquibus (Melee)": "Vinquibus",
+  "Vinquibus (Primary)": "Vinquibus",
+  "AX-52": "Ax-52",
+  "EFV-5 Jupiter": "Efv-5 Jupiter",
+  "EFV-8 Mars": "Efv-8 Mars",
+  Zaw: "Kronsh",
+};
+
+for (const [alias, target] of Object.entries(IMAGE_ALIASES)) {
+  if (!urls[alias] && urls[target]) {
+    urls[alias] = urls[target];
+  }
+}
+
 // Ensure data directory exists
 mkdirSync(dataDir, { recursive: true });
 

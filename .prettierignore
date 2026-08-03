@@ -1,0 +1,6 @@
+dist
+node_modules
+bun.lock
+data/raw
+public/data
+data/urls.json

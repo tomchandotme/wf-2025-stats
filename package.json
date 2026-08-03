@@ -5,13 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3579",
-    "build": "tsx scripts/gen_img_url.ts && tsc -b && vite build",
+    "build": "tsc -b && vite build",
+    "generate:images": "tsx scripts/gen_img_url.ts",
+    "generate:weights": "tsx scripts/solve_weights.ts",
+    "generate:client-data": "tsx scripts/prepare_client_data.ts",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
-    "@types/bun": "^1.3.7",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
@@ -22,6 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/bun": "^1.3.7",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
@@ -36,6 +43,7 @@
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^3.2.4"
   }
 }

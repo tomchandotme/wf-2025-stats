@@ -65,8 +65,8 @@ export const PopularityRow: React.FC<PopularityRowProps> = ({
   const chartData = useMemo(
     () => [
       { name: "0-10", val: item.mrRanges["0-10"], fill: MR_COLORS["0-10"] },
-      { name: "11-20", val: item.mrRanges["11-20"], fill: "#00f5ff" }, // Use accent Teal
-      { name: "21+", val: item.mrRanges["21+"], fill: "#c8a45c" }, // Use primary Gold
+      { name: "11-20", val: item.mrRanges["11-20"], fill: MR_COLORS["11-20"] },
+      { name: "21+", val: item.mrRanges["21+"], fill: MR_COLORS["21+"] },
     ],
     [item.mrRanges],
   );
